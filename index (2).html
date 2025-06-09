@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .admin-panel, .video-gallery {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .admin-panel {
+      display: none;
+    }
+
+    input[type="file"], input[type="text"], input[type="password"], button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    .video-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .video-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: 200px;
+    }
+
+    .video-card p {
+      padding: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>My Video Blog</h1>
+
+  <div id="authForm" class="admin-panel">
+    <h3>Admin Login</h3>
+    <input type="password" id="adminPasswordInput" placeholder="Enter admin password" />
+    <button onclick="checkPassword()">Login as Admin</button>
+  </div>
+
+  <div id="uploadForm" class="admin-panel">
+    <h3>Upload New Video</h3>
+    <input type="file" id="videoFile" accept="video/mp4" />
+    <input type="text" id="videoDesc" placeholder="Video description" />
+    <button onclick="uploadVideo()">Upload Video</button>
+  </div>
+
+  <div class="video-gallery">
+    <h3>All Videos</h3>
+    <div id="videoList" class="video-list"></div>
+  </div>
+
+  <script>
+    const adminPassword = "admin123"; // Change this to your own password
+    const videoListEl = document.getElementById("videoList");
+
+    function checkPassword() {
+      const input = document.getElementById("adminPasswordInput").value;
+      if (input === adminPassword) {
+        document.getElementById("uploadForm").style.display = "block";
+        document.getElementById("authForm").style.display = "none";
+      } else {
+        alert("Incorrect password!");
+      }
+    }
+
+    function uploadVideo() {
+      const fileInput = document.getElementById("videoFile");
+      const descInput = document.getElementById("videoDesc");
+
+      const file = fileInput.files[0];
+      const desc = descInput.value;
+
+      if (!file || !desc) {
+        alert("Please select a video and enter a description.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const videoData = {
+          url: reader.result,
+          desc: desc
+        };
+
+        const videos = JSON.parse(localStorage.getItem("videos") || "[]");
+        videos.unshift(videoData);
+        localStorage.setItem("videos", JSON.stringify(videos));
+
+        displayVideos();
+        fileInput.value = '';
+        descInput.value = '';
+        alert("Video uploaded!");
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function displayVideos() {
+      const videos = JSON.parse(localStorage.getItem("videos") || "[]");
+      videoListEl.innerHTML = "";
+
+      videos.forEach(video => {
+        const card = document.createElement("div");
+        card.className = "video-card";
+        card.innerHTML = `
+          <video controls src="${video.url}"></video>
+          <p>${video.desc}</p>
+        `;
+        videoListEl.appendChild(card);
+      });
+    }
+
+    // Show login on page load and display all videos
+    document.getElementById("authForm").style.display = "block";
+    displayVideos();
+  </script>
+  
+  
+  <script>
+  function uploadVideo() {
+  const fileInput = document.getElementById("videoFile");
+  const descInput = document.getElementById("videoDesc");
+
+  const file = fileInput.files[0];
+  const desc = descInput.value;
+
+  if (!file || !desc) {
+    alert("Please select a video and enter a description.");
+    return;
+  }
+
+  if (file.size > 5000000) { // Limit to 5MB
+    alert("Video is too large! Please upload a file under 5MB.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function () {
+    const videoData = {
+      url: reader.result,
+      desc: desc
+    };
+
+    const videos = JSON.parse(localStorage.getItem("videos") || "[]");
+    videos.unshift(videoData);
+    localStorage.setItem("videos", JSON.stringify(videos));
+
+    displayVideos();
+    fileInput.value = '';
+    descInput.value = '';
+    alert("Video uploaded!");
+  };
+
+  reader.readAsDataURL(file);
+}
+  </script>
+</body>
+</html>
